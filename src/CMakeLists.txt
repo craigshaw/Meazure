@@ -1,4 +1,4 @@
-
+cmake_minimum_required(VERSION 2.8)
 add_subdirectory(expat)
 add_subdirectory(hooks)
 add_subdirectory(meazure)

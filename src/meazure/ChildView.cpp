@@ -86,7 +86,9 @@ BEGIN_MESSAGE_MAP(CChildView,CWnd )
     ON_COMMAND(ID_MEA_SAVE_PROFILE, OnSaveProfile)
     ON_COMMAND(ID_MEA_LOAD_PROFILE, OnLoadProfile)
     ON_COMMAND(ID_MEA_COPY_RGN, OnCopyRegion)
+	ON_COMMAND(ID_MEA_GRAB_RGN, OnGrabRegion)
     ON_UPDATE_COMMAND_UI(ID_MEA_COPY_RGN, OnUpdateCopyRegion)
+	ON_UPDATE_COMMAND_UI(ID_MEA_GRAB_RGN, OnUpdateGrabRegion)
     ON_COMMAND(ID_MEA_TOOL_INFO, OnToolInfo)
     ON_UPDATE_COMMAND_UI(ID_MEA_TOOL_INFO, OnUpdateToolInfo)
     ON_COMMAND(ID_MEA_COLLAPSE, OnCollapse)
@@ -195,6 +197,7 @@ void CChildView::SaveProfile(MeaProfile& profile)
         profile.WriteBool(_T("ExpandToolInfo"),     m_expandToolInfo);
     
         profile.WriteStr(_T("StartupProfile"), m_startupProfile);
+		profile.WriteStr(_T("ScreenGrabDir"), m_screenGrabDirectory);
     }
 
     MeaToolMgr::Instance().SaveProfile(profile);
@@ -232,6 +235,7 @@ void CChildView::LoadProfile(MeaProfile& profile)
         m_expandToolInfo    = profile.ReadBool(_T("ExpandToolInfo"),    m_expandToolInfo);
 
         m_startupProfile    = profile.ReadStr(_T("StartupProfile"), m_startupProfile);
+		m_screenGrabDirectory = profile.ReadStr(_T("ScreenGrabDir"), m_screenGrabDirectory);
     }
 
     toolMgr.DisableRadioTools();
@@ -256,6 +260,7 @@ void CChildView::MasterReset()
     ViewMagnifier(m_expandMagnifier);
 
     m_startupProfile.Empty();
+	m_screenGrabDirectory.Empty();
 
     MeaScreenMgr::Instance().MasterReset();
     MeaUnitsMgr::Instance().MasterReset();
@@ -367,7 +372,8 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     frame->MoveWindow(frameRect);
 
-    m_snapshotTimer.Create(this);
+    m_snapshotTimer.Create(this, (WPARAM)&m_snapshotTimer);
+	m_screenGrabTimer.Create(this, (WPARAM)&m_screenGrabTimer);
 
     MeaToolMgr& toolMgr = MeaToolMgr::Instance();
 
@@ -1185,6 +1191,7 @@ void CChildView::OnPreferences()
     //
     m_prefs.m_advancedPrefs.m_startupProfile = m_startupProfile;
     m_prefs.m_advancedPrefs.m_startupProfileDlg = MeaProfileMgr::Instance().CreateLoadDialog();
+	m_prefs.m_advancedPrefs.m_screenGrabDirectory = m_screenGrabDirectory;
 
     int res = m_prefs.DoModal();
     if (res == IDOK) {
@@ -1314,9 +1321,25 @@ void CChildView::ApplyPreferences(int prefsPage)
     //
     if (prefsPage == MeaPreferences::kAllPages || prefsPage == MeaPreferences::kAdvancedPage) {
         m_startupProfile = m_prefs.m_advancedPrefs.m_startupProfile;
+		m_screenGrabDirectory = m_prefs.m_advancedPrefs.m_screenGrabDirectory;
     }
 }
 
+void CChildView::OnGrabRegion() 
+{
+    MeaToolMgr& mgr = MeaToolMgr::Instance();
+
+    if (mgr.HasRegion()) 
+	{
+        // We must use a timer to allow the region tool to disable
+        // before we copy the screen image to the clipboard. Otherwise
+        // we'll capture the tool's outline and crosshairs as part of
+        // the image.
+        //
+        mgr.DisableRadioTool();
+        m_screenGrabTimer.Start(10);
+    }
+}
 
 void CChildView::OnCopyRegion() 
 {
@@ -1334,7 +1357,7 @@ void CChildView::OnCopyRegion()
 }
 
 
-LRESULT CChildView::OnHPTimer(WPARAM, LPARAM)
+LRESULT CChildView::OnHPTimer(WPARAM wParam, LPARAM)
 {
     // Get the screen region to copy.
     //
@@ -1353,11 +1376,28 @@ LRESULT CChildView::OnHPTimer(WPARAM, LPARAM)
     ::BitBlt(memDC, 0, 0, rect.Width(), rect.Height(),
         screenDC, rect.left, rect.top, SRCCOPY);
 
-    // Put bitmap on the clipboard.
-    //
-    ::EmptyClipboard();
-    ::SetClipboardData(CF_BITMAP, screenBitmap);
-    ::CloseClipboard();
+	if((MeaTimer *)wParam == &m_screenGrabTimer)
+	{
+		// Save bitmap to file
+		//
+		CImage  img;
+		MeaGUID newFilename;
+
+		CString filePath = (m_screenGrabDirectory == _T("") ? m_screenGrabDirectory : m_screenGrabDirectory + _T("\\"));
+		CString filename(filePath + newFilename.ToString() + _T(".png"));
+
+		img.Attach(screenBitmap);
+		img.Save(filename);
+		img.Detach();
+	}
+	else
+	{
+		// Put bitmap on the clipboard.
+		//
+		::EmptyClipboard();
+		::SetClipboardData(CF_BITMAP, screenBitmap);
+		::CloseClipboard();
+	}
 
     // Cleanup
     //
@@ -1370,6 +1410,12 @@ LRESULT CChildView::OnHPTimer(WPARAM, LPARAM)
 
 
 void CChildView::OnUpdateCopyRegion(CCmdUI* pCmdUI) 
+{
+    pCmdUI->Enable(MeaToolMgr::Instance().HasRegion());
+}
+
+
+void CChildView::OnUpdateGrabRegion(CCmdUI* pCmdUI) 
 {
     pCmdUI->Enable(MeaToolMgr::Instance().HasRegion());
 }

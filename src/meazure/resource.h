@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Meazure.rc
 //
 #define IDD_ABOUTBOX                    100
@@ -72,6 +72,7 @@
 #define IDC_PROFILE_BTN                 1075
 #define IDC_CLEAR_PROFILE               1076
 #define IDC_HOME_URL                    1077
+#define IDC_SCREENGRAB_DIR_BTN          1077
 #define IDC_FEEDBACK_EMAIL              1078
 #define IDC_PROGRAM_TITLE               1079
 #define IDC_MEA_DATA_WIN                1080
@@ -168,6 +169,7 @@
 #define IDC_RULER_OPACITY_LABEL2        1177
 #define IDC_MEA_ORIGIN_MARKER           1178
 #define IDC_MASTER_RESET                1179
+#define IDC_SCREENGRABS_DIR             1180
 #define ID_MEA_CURSOR                   32771
 #define ID_MEA_POINT                    32772
 #define ID_MEA_LINE                     32773
@@ -224,6 +226,7 @@
 #define ID_MEA_UNITS_SET_CUSTOM         32843
 #define ID_MEA_UNITS_CUSTOM             32844
 #define ID_MEA_UNITS_DEF_CUSTOM         32845
+#define ID_MEA_GRAB_RGN                 32848
 #define IDS_MEA_PIXELS                  61204
 #define IDS_MEA_CM                      61205
 #define IDS_MEA_MM                      61206
@@ -395,8 +398,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        165
-#define _APS_NEXT_COMMAND_VALUE         32846
-#define _APS_NEXT_CONTROL_VALUE         1180
+#define _APS_NEXT_COMMAND_VALUE         32851
+#define _APS_NEXT_CONTROL_VALUE         1181
 #define _APS_NEXT_SYMED_VALUE           129
 #endif
 #endif

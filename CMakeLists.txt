@@ -11,12 +11,11 @@ endif()
 
 enable_testing()
 
-set(BOOST_ROOT "$ENV{ProgramFiles}/boost/boost_1_47_0")
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-set(Boost_ADDITIONAL_VERSIONS "1.47" "1.47.0")
-find_package(Boost COMPONENTS date_time REQUIRED)
+set(Boost_DETAILED_FAILURE_MSG TRUE)
+find_package(Boost 1.52.0 COMPONENTS date_time REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories("${Boost_LIBRARY_DIRS}")

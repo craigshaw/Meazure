@@ -39,15 +39,18 @@ BEGIN_MESSAGE_MAP(MeaAdvancedPrefs, CPropertyPage)
     ON_EN_CHANGE(IDC_PROFILE_PATHNAME, OnChangeProfilePathname)
     ON_BN_CLICKED(IDC_CLEAR_PROFILE, OnClearProfile)
     ON_BN_CLICKED(IDC_MASTER_RESET, OnMasterReset)
+	ON_BN_CLICKED(IDC_SCREENGRAB_DIR_BTN, OnSelectScreenGrabOutputDirectoryBtn)
+	ON_EN_CHANGE(IDC_SCREENGRABS_DIR, OnChangeScreenGrabOutputDirectory)
     //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
 MeaAdvancedPrefs::MeaAdvancedPrefs() : CPropertyPage(MeaAdvancedPrefs::IDD),
-    m_startupProfileDlg(NULL)
+	m_startupProfileDlg(NULL)
 {
     //{{AFX_DATA_INIT(MeaAdvancedPrefs)
     m_startupProfile = _T("");
+	m_screenGrabDirectory = _T("");
     //}}AFX_DATA_INIT
 }
 
@@ -63,6 +66,7 @@ void MeaAdvancedPrefs::DoDataExchange(CDataExchange* pDX)
     CPropertyPage::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(MeaAdvancedPrefs)
     DDX_Text(pDX, IDC_PROFILE_PATHNAME, m_startupProfile);
+	DDX_Text(pDX, IDC_SCREENGRABS_DIR, m_screenGrabDirectory);
     //}}AFX_DATA_MAP
 }
 
@@ -76,6 +80,48 @@ void MeaAdvancedPrefs::OnProfileBtn()
     }
 }
 
+void MeaAdvancedPrefs::OnSelectScreenGrabOutputDirectoryBtn() 
+{
+    if (BrowseForScreenGrabDirectory() == TRUE) {
+		CEdit *edit = static_cast<CEdit*>(GetDlgItem(IDC_SCREENGRABS_DIR));
+        edit->SetWindowText(m_screenGrabDirectory);
+    }
+}
+
+BOOL MeaAdvancedPrefs::BrowseForScreenGrabDirectory(void)
+{
+	BROWSEINFO bi;
+	memset((LPVOID)&bi, 0, sizeof(bi));
+
+	TCHAR szDisplayName[_MAX_PATH];
+	szDisplayName[0] = '\0';
+
+	bi.hwndOwner = GetSafeHwnd();
+	bi.pidlRoot = NULL;
+	bi.pszDisplayName = szDisplayName;
+	bi.lpszTitle = _T("Select a folder");
+	bi.ulFlags = BIF_RETURNONLYFSDIRS;
+
+	LPITEMIDLIST pIIL = ::SHBrowseForFolder(&bi);
+	TCHAR szReturnedDir[_MAX_PATH];
+
+	BOOL bRet = ::SHGetPathFromIDList(pIIL, (TCHAR*)&szReturnedDir);
+	
+	if (bRet)
+	{
+		if (szReturnedDir != _T(""))
+		{
+			m_screenGrabDirectory = szReturnedDir;
+		}
+
+		LPMALLOC pMalloc;
+		SHGetMalloc(&pMalloc);
+		pMalloc->Free(pIIL);
+		pMalloc->Release();
+	}
+
+	return bRet;
+}
 
 void MeaAdvancedPrefs::OnClearProfile()
 {
@@ -83,12 +129,15 @@ void MeaAdvancedPrefs::OnClearProfile()
     edit->SetWindowText("");
 }
 
-
 void MeaAdvancedPrefs::OnChangeProfilePathname()
 {
     SetModified(TRUE);
 }
 
+void MeaAdvancedPrefs::OnChangeScreenGrabOutputDirectory()
+{
+    SetModified(TRUE);
+}
 
 void MeaAdvancedPrefs::OnMasterReset()
 {

@@ -43,6 +43,7 @@ public:
     //{{AFX_DATA(MeaAdvancedPrefs)
     enum { IDD = IDD_PREF_ADVANCED };
     CString m_startupProfile;
+	CString m_screenGrabDirectory;
     //}}AFX_DATA
 
     /// @var m_startupProfile
@@ -50,6 +51,9 @@ public:
 
     
     CFileDialog *m_startupProfileDlg;       ///< File dialog for selecting the startup profile file.
+
+private:
+	BOOL BrowseForScreenGrabDirectory(void);
 
     //{{AFX_VIRTUAL(MeaAdvancedPrefs)
     protected:
@@ -68,6 +72,8 @@ protected:
     afx_msg void OnChangeProfilePathname();
     afx_msg void OnClearProfile();
     afx_msg void OnMasterReset();
+	afx_msg void OnSelectScreenGrabOutputDirectoryBtn();
+	afx_msg void OnChangeScreenGrabOutputDirectory();
     //}}AFX_MSG
 
     /// @fn OnProfileBtn()
@@ -85,6 +91,14 @@ protected:
     /// Called when the mast reset button is pressed. A reset confirmation
     /// dialog is displayed and upon an affirmative response, the master
     /// reset is performed.
+
+    /// @fn OnSelectScreenGrabOutputDirectoryBtn()
+    /// When the browse for screen grab button is pressed, called to display a browser
+	/// for folder dialog
+
+    /// @fn OnChangeScreenGrabOutputDirectory()
+    /// Called when the screen grab output pathname is changed so that
+    /// the modified flag can be set.
 
     DECLARE_MESSAGE_MAP()
 };

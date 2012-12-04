@@ -205,7 +205,9 @@ protected:
     afx_msg void OnSaveProfile();
     afx_msg void OnLoadProfile();
     afx_msg void OnCopyRegion();
+	afx_msg void OnGrabRegion();
     afx_msg void OnUpdateCopyRegion(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateGrabRegion(CCmdUI* pCmdUI);
     afx_msg void OnToolInfo();
     afx_msg void OnUpdateToolInfo(CCmdUI* pCmdUI);
     afx_msg void OnCollapse();
@@ -383,8 +385,17 @@ protected:
     /// Enabled when the Rectangle, Circle or Window tool is selected. Copies the area of
     /// the screen bounded by the tool to the Clipboard.
 
+    /// @fn OnGrabRegion()
+    /// Enabled when the Rectangle, Circle or Window tool is selected. Exports the are of the screen
+	/// bounded by the tool to a jpeg file. Location as defined in advanced prefs.
+
     /// @fn OnUpdateCopyRegion(CCmdUI* pCmdUI)
     /// If a tool reports that it has a region that can be copied, the Copy Region menu
+    /// item is enabled. Otherwise the menu item is disabled.
+    /// @param pCmdUI   [in] UI command object for updating the menu item.
+
+    /// @fn OnUpdateGrabRegion(CCmdUI* pCmdUI)
+    /// If a tool reports that it has a region that can be copied, the Grab Region menu
     /// item is enabled. Otherwise the menu item is disabled.
     /// @param pCmdUI   [in] UI command object for updating the menu item.
 
@@ -551,7 +562,9 @@ private:
     MeaMagnifier    m_magnifier;                ///< Screen capture and magnifier object.
     MeaPreferences  m_prefs;                    ///< Application preferences.
     CString         m_startupProfile;           ///< Pathname for the startup profile, if any.
+	CString         m_screenGrabDirectory;      ///< Pathname for the screen grab directory, if any.
     MeaTimer        m_snapshotTimer;            ///< Timer used in copying a tool's region to the clipboard.
+	MeaTimer        m_screenGrabTimer;          ///< Timer used in grabbing a tool's region to file.
     int             m_adjustHeight;             ///< Adjustment used when computing the height of the application, in pixels.
 
     bool            m_expandToolbar;            ///< Indicates if the toolbar is displayed.
