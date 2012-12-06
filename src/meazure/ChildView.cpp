@@ -1381,10 +1381,12 @@ LRESULT CChildView::OnHPTimer(WPARAM wParam, LPARAM)
 		// Save bitmap to file
 		//
 		CImage  img;
-		MeaGUID newFilename;
+
+		CTime currentTime = CTime::GetCurrentTime();
+		CString newFilename = currentTime.Format(_T("%Y%m%d_%H%M%S"));
 
 		CString filePath = (m_screenGrabDirectory == _T("") ? m_screenGrabDirectory : m_screenGrabDirectory + _T("\\"));
-		CString filename(filePath + newFilename.ToString() + _T(".png"));
+		CString filename(filePath + newFilename + _T(".png"));
 
 		img.Attach(screenBitmap);
 		img.Save(filename);
